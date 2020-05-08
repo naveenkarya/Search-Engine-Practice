@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+        
+    <form action="searchText" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.searchtext.label }}<br>
+            {{ form.searchtext(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    <div id = 'results'>
+        <p></p>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                event.preventDefault();
+                $.ajax({
+                    url: "/searchText",
+                    type: "post",
+                    data: {
+                        searchtext: $('#searchtext').val()
+                    },
+                    success: function(response) {
+                        
+                    },
+                    error: function(xhr) {
+                    //Do Something to handle error
+                    }
+                }).done(function(data) {
+                    if(data.result.length == 0) {
+                        $("#results").html("No Results found")
+                    }
+                    else {
+                        let h = "<div class = 'list-group'>";
+                        for(item of data.result) {
+                            h = h.concat("<a href='#' class='list-group-item'>", "<h5 class = 'list-group-item-heading'>",item["file"],'</h5><p class="list-group-item-text">',item["matchingText"],'<span class="badge" style="float:right">',item["count"],'</span></p>', "</a>");
+                        }
+                        h = h.concat("</div>");
+                        $("#results").html(h);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
